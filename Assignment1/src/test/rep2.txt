@@ -1,0 +1,25 @@
+drop view t3 cascade;
+drop view t2 cascade;
+drop view t1 cascade;
+create view t1 as
+select cust,prod, month from sales group by cust,prod,month;
+
+create view t2 as
+select t1.cust,t1.prod,t1.month, avg(sales.quant) as avg_bef 
+from t1,sales
+where
+t1.cust = sales.cust and
+t1.prod = sales.prod and
+sales.month = t1.month - 1
+group by t1.cust,t1.prod,t1.month;
+
+create view t3 as
+select t1.cust,t1.prod,t1.month, avg(sales.quant) as avg_aft 
+from t1,sales
+where
+t1.cust = sales.cust and
+t1.prod = sales.prod and
+sales.month = t1.month + 1
+group by t1.cust,t1.prod,t1.month;
+
+select * from t1 natural full outer join t2 natural full outer join t3;

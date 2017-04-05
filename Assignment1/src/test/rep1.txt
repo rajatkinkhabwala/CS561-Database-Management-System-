@@ -1,0 +1,21 @@
+drop view view20;
+drop view view21;
+drop view view22;
+create view view20 as
+select cust,prod,avg(quant) as the_avg from sales group by cust,prod;
+
+create view view21 as
+select sales1.cust,sales1.prod, avg(sales2.quant) as other_prod from
+sales as sales1,sales as sales2
+where sales1.cust = sales2.cust 
+and   sales1.prod != sales2.prod
+group by sales1.cust,sales1.prod;
+
+create view view22 as
+select sales1.cust,sales1.prod, avg(sales2.quant) as other_cust from
+sales as sales1,sales as sales2
+where sales1.prod = sales2.prod
+and   sales1.cust != sales2.cust 
+group by sales1.cust,sales1.prod;
+
+select * from view20 natural full outer join view21 natural full outer join view22;

@@ -1,0 +1,31 @@
+drop view i4 cascade;
+drop view i3 cascade;
+drop view i2 cascade;
+drop view i1 cascade;
+create view i1 as
+select prod,month from sales group by prod,month;
+
+create view i2 as
+select i1.prod, i1.month, avg(sales.quant) as AVG_S ,max(sales.quant) as MAX_S
+from i1,sales
+where i1.prod = sales.prod and
+i1.month = sales.month
+group by i1.prod,i1.month;
+
+create view i3 as
+select i2.prod,i2.month, count(sales.quant) as count_b
+from i2,sales
+where i2.prod = sales.prod and
+sales.month = i2.month - 1 and
+sales.quant between i2.AVG_S and i2.MAX_S
+group by i2.prod, i2.month;
+
+create view i4 as
+select i2.prod,i2.month, count(sales.quant) as count_a
+from i2,sales
+where i2.prod = sales.prod and
+sales.month = i2.month + 1 and
+sales.quant between i2.AVG_S and i2.MAX_S
+group by i2.prod, i2.month;
+
+select * from i1 natural full outer join i3 natural full outer join i4;
